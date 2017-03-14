@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="Alphaleonis.VSProjectSetMgr.Views.ProjectSetManagerToolWindowControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.14.0"              
+             xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.14.0"
+             xmlns:l="clr-namespace:Alphaleonis.VSProjectSetMgr.Controls"
+             Background="{DynamicResource {x:Static ui:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
+             Foreground="{DynamicResource VsBrush.WindowText}"             
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+   <Grid>      
+      <Grid.Resources>
+         <Image x:Key="imgLoad"   Source="/Alphaleonis.VSProjectSetMgr;component/Resources/Load.png" />
+         <Image x:Key="imgLoadEx" Source="/Alphaleonis.VSProjectSetMgr;component/Resources/LoadEx.png" />         
+         <Image x:Key="imgUnload" Source="/Alphaleonis.VSProjectSetMgr;component/Resources/Unload.png" />
+         <Image x:Key="imgUnloadEx" Source="/Alphaleonis.VSProjectSetMgr;component/Resources/UnloadEx.png" />
+         <Image x:Key="imgDelete" Source="/Alphaleonis.VSProjectSetMgr;component/Resources/Delete.png" />
+         <Image x:Key="imgAdd" Source="/Alphaleonis.VSProjectSetMgr;component/Resources/Add.png" />
+         <Image x:Key="imgEdit" Source="/Alphaleonis.VSProjectSetMgr;component/Resources/Edit.png" />
+      </Grid.Resources>
+
+      <Grid.RowDefinitions>
+         <RowDefinition Height="Auto" />
+         <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+      <l:VsListBox 
+        Grid.Row="1" 
+        Style="{DynamicResource vsListBox}"
+        BorderThickness="0"
+        ItemsSource="{Binding ProjectSets}" 
+        DisplayMemberPath="Name" 
+        SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+         <l:VsListBox.ContextMenu>
+            <ContextMenu>
+               <MenuItem Command="{Binding AddCommand}" Header="_Add..." Icon="{StaticResource imgAdd}" />
+               <MenuItem Command="{Binding EditCommand}" Header="_Edit..." Icon="{StaticResource imgEdit}" />
+               <MenuItem Command="{Binding DeleteCommand}" Header="_Delete" Icon="{StaticResource imgDelete}" />
+               <Separator />
+               <MenuItem Command="{Binding LoadCommand}" Header="_Load" Icon="{StaticResource imgLoad}" />
+               <MenuItem Command="{Binding LoadExCommand}" Header="L_oad and Unload Other" Icon="{DynamicResource imgLoadEx}" />
+               <Separator />
+               <MenuItem Command="{Binding UnloadCommand}" Header="_Unload" Icon="{StaticResource imgUnload}" />
+               <MenuItem Command="{Binding UnloadExCommand}" Header="U_nload and Load Other" Icon="{StaticResource imgUnloadEx}" />
+            </ContextMenu>
+         </l:VsListBox.ContextMenu>
+      </l:VsListBox>
+   </Grid>
+</UserControl>

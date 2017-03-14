@@ -1,0 +1,553 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <!--
+   /*
+   * Manage Loaded Projects
+   *    C++
+   *       Load and Unload Other
+   *       Load
+   *       Unload
+   *    C#
+   *       Load and Unload Other
+   *       Load
+   *       Unload
+   *    *******************************
+   *    Load All Projects In Solution
+   *    Unload All Projects In Solution
+   *    *******************************
+   *    Save Current State...
+   *    *******************************
+   *    More...
+   *
+   */
+   -->
+
+   <Extern href="stdidcmd.h"/>
+   <Extern href="vsshlids.h"/>
+
+   <Commands package="guidLoadedProjectsProfileManagerPkg">
+      <Groups>
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="location" priority="0x0020">
+            <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_PROJWIN"/>
+         </Group>
+         
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidRootMenu" priority="0x0600">
+            <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_SOLNNODE"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidAllProjects" priority="0x0100">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMainMenu"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRUProjects" priority="0x0110">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMainMenu"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidSave" priority="0x0180">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMainMenu"/>
+         </Group>
+         
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMore" priority="0x0190">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMainMenu"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU0Load" priority="0x0100">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU0"/>
+         </Group>
+         
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU1Load" priority="0x0100">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU1"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU2Load" priority="0x0100">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU2"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU3Load" priority="0x0100">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU3"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU0Unload" priority="0x0101">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU0"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU1Unload" priority="0x0101">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU1"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU2Unload" priority="0x0101">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU2"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU3Unload" priority="0x0101">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU3"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarFileGroup" priority="0x0000">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarID"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarLoadGroup"  priority="0x0001">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarID"/>
+         </Group>
+
+         <Group guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarUnloadGroup"  priority="0x0002">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarID"/>
+         </Group>
+      </Groups>
+
+      <Menus>
+         <Menu guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMainMenu" type="Menu" priority="0x0600">            
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidRootMenu"/>            
+            <Strings>
+               <ButtonText>Load/Unload Projects</ButtonText>
+            </Strings>            
+         </Menu>
+
+         <Menu guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU0" type="Menu" priority="0x0600">            
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRUProjects"/>
+            <CommandFlag>TextChanges</CommandFlag>
+            <CommandFlag>DynamicVisibility</CommandFlag>
+            <CommandFlag>DefaultInvisible</CommandFlag>            
+            <Strings>
+               <ButtonText>MRU Placeholder 1</ButtonText>
+            </Strings>
+         </Menu>
+
+         <Menu guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU1" type="Menu" priority="0x0601">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRUProjects"/>
+            <CommandFlag>TextChanges</CommandFlag>
+            <CommandFlag>DynamicVisibility</CommandFlag>
+            <CommandFlag>DefaultInvisible</CommandFlag>
+            <Strings>
+               <ButtonText>MRU Placeholder 2</ButtonText>
+            </Strings>
+         </Menu>
+
+         <Menu guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU2" type="Menu" priority="0x0602">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRUProjects"/>
+            <CommandFlag>TextChanges</CommandFlag>
+            <CommandFlag>DynamicVisibility</CommandFlag>
+            <CommandFlag>DefaultInvisible</CommandFlag>
+            <Strings>
+               <ButtonText>MRU Placeholder 3</ButtonText>
+            </Strings>
+         </Menu>
+
+         <Menu guid="guidLoadedProjectsProfileManagerCmdSet" id="mnuidMRU3" type="Menu" priority="0x0603">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRUProjects"/>
+            <CommandFlag>TextChanges</CommandFlag>
+            <CommandFlag>DynamicVisibility</CommandFlag>
+            <CommandFlag>DefaultInvisible</CommandFlag>
+            <Strings>
+               <ButtonText>MRU Placeholder 4</ButtonText>
+            </Strings>
+         </Menu>
+
+         <Menu guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarID" priority="0x0000" type="ToolWindowToolbar">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarID" />
+            <Strings>
+               <ButtonText>Project Loader Toolbar</ButtonText>
+            </Strings>
+         </Menu>
+      </Menus>
+      
+      
+      <Buttons>
+         <!--Solution Toolbar Button
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdCollapseSync" priority="0x0100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="location" />
+            <Icon guid="guidImages" id="bmpCollapseTo" />
+            <Strings>
+               <ButtonText>Collapse to Item</ButtonText>
+            </Strings>
+         </Button>-->
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadAllProjectsInSolution" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidAllProjects"/>
+            <Icon guid="guidLoadSolution" id="imgLoadSolution"/>
+            <Strings>
+               <ButtonText>Load All Projects in Solution</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadAllProjectsInSolution" priority="0x101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidAllProjects"/>
+            <Icon guid="guidUnloadSolution" id="imgUnloadSolution"/>
+            <Strings>
+               <ButtonText>Unload All Projects in Solution</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidMore" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMore"/>
+            <Icon guid="guidImgShowManager" id="imgShowManager"/>
+            <Strings>
+               <ButtonText>Show Manager</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidViewManager" priority="0x0100" type="Button">
+            <!--IDG_VS_WNDO_OTRWNDWS0 is the first group in "View|Other Windows". See 
+    C:\Program Files (x86)\Microsoft Visual Studio 2010 SDK SP1\VisualStudioIntegration\Common\Inc
+    for other options. -->
+            <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS3"/>
+            <!--<CommandFlag>DynamicVisibility</CommandFlag>-->
+            <!--<CommandFlag>DefaultInvisible</CommandFlag>-->
+            <Icon guid="guidImgShowManager" id="imgShowManager"/>
+            
+            <Strings>
+               <ButtonText>Project Set Manager</ButtonText>
+            </Strings>
+         </Button>
+         
+
+         <!-- ***** -->
+         <!-- MRU 0 -->
+         <!-- ***** -->
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadMRU0" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU0Load"/>
+            <Icon guid="guidToolBarIcons" id="imgLoad" />
+            <Strings>
+               <ButtonText>Load</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadExclusiveMRU0" priority="0x101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU0Load"/>
+            <Icon guid="guidToolBarIcons" id="imgLoadEx" />
+            <Strings>
+               <ButtonText>Load and Unload Other</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadMRU0" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU0Unload"/>
+            <Icon guid="guidToolBarIcons" id="imgUnload" />
+            <Strings>
+               <ButtonText>Unload</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadExclusiveMRU0" priority="0x101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU0Unload"/>
+            <Icon guid="guidToolBarIcons" id="imgUnloadEx" />
+            <Strings>
+               <ButtonText>Unload and Load Other</ButtonText>
+            </Strings>
+         </Button>
+
+
+         <!-- ***** -->
+         <!-- MRU1 -->
+         <!-- ***** -->
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadMRU1" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU1Load"/>
+            <Icon guid="guidToolBarIcons" id="imgLoad" />
+            <Strings>
+               <ButtonText>Load</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadExclusiveMRU1" priority="0x101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU1Load"/>
+            <Icon guid="guidToolBarIcons" id="imgLoadEx" />
+            <Strings>
+               <ButtonText>Load and Unload Other</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadMRU1" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU1Unload"/>
+            <Icon guid="guidToolBarIcons" id="imgUnload" />
+            <Strings>
+               <ButtonText>Unload</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadExclusiveMRU1" priority="0x101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU1Unload"/>
+            <Icon guid="guidToolBarIcons" id="imgUnloadEx" />
+            <Strings>
+               <ButtonText>Unload and Load Other</ButtonText>
+            </Strings>
+         </Button>
+
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidAddProfile" priority="0x0101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarFileGroup"/>
+            <Icon guid="guidToolBarIcons" id="imgAdd" />
+            <CommandFlag>Pict</CommandFlag>
+            <CommandFlag>DefaultDisabled</CommandFlag>
+            <Strings>
+               <ButtonText>Add New Profile</ButtonText>
+            </Strings>
+         </Button>
+
+         <!-- ***** -->
+         <!-- MRU2 -->
+         <!-- ***** -->
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadMRU2" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU2Load"/>
+            <Icon guid="guidToolBarIcons" id="imgLoad" />
+            <Strings>
+               <ButtonText>Load</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadExclusiveMRU2" priority="0x101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU2Load"/>
+            <Icon guid="guidToolBarIcons" id="imgLoadEx" />
+            <Strings>
+               <ButtonText>Load and Unload Other</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadMRU2" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU2Unload"/>
+            <Icon guid="guidToolBarIcons" id="imgUnload" />
+            <Strings>
+               <ButtonText>Unload</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadExclusiveMRU2" priority="0x101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU2Unload"/>
+            <Icon guid="guidToolBarIcons" id="imgUnloadEx" />
+            <Strings>
+               <ButtonText>Unload and Load Other</ButtonText>
+            </Strings>
+         </Button>
+
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidAddProfile" priority="0x0101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarFileGroup"/>
+            <Icon guid="guidToolBarIcons" id="imgAdd" />
+            <CommandFlag>Pict</CommandFlag>
+            <CommandFlag>DefaultDisabled</CommandFlag>
+            <Strings>
+               <ButtonText>Add New Profile</ButtonText>
+            </Strings>
+         </Button>
+
+         <!-- ***** -->
+         <!-- MRU3 -->
+         <!-- ***** -->
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadMRU3" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU3Load"/>
+            <Icon guid="guidToolBarIcons" id="imgLoad" />
+            <Strings>
+               <ButtonText>Load</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadExclusiveMRU3" priority="0x101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU3Load"/>
+            <Icon guid="guidToolBarIcons" id="imgLoadEx" />
+            <Strings>
+               <ButtonText>Load and Unload Other</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadMRU3" priority="0x100" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU3Unload"/>
+            <Icon guid="guidToolBarIcons" id="imgUnload" />
+            <Strings>
+               <ButtonText>Unload</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadExclusiveMRU3" priority="0x101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="grpidMRU3Unload"/>
+            <Icon guid="guidToolBarIcons" id="imgUnloadEx" />
+            <Strings>
+               <ButtonText>Unload and Load Other</ButtonText>
+            </Strings>
+         </Button>
+
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidAddProfile" priority="0x0101" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarFileGroup"/>
+            <Icon guid="guidToolBarIcons" id="imgAdd" />
+            <CommandFlag>Pict</CommandFlag>
+            <CommandFlag>DefaultDisabled</CommandFlag>
+            <Strings>
+               <ButtonText>Add New Profile</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidDeleteProfile" priority="0x0102" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarFileGroup"/>
+            <Icon guid="guidToolBarIcons" id="imgDelete" />
+            <CommandFlag>Pict</CommandFlag>
+            <CommandFlag>DefaultDisabled</CommandFlag>
+            <Strings>
+               <ButtonText>Delete Profile</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidEditProfile" priority="0x0103" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarFileGroup"/>
+            <Icon guid="guidToolBarIcons" id="imgEdit" />
+            <CommandFlag>Pict</CommandFlag>
+            <CommandFlag>DefaultDisabled</CommandFlag>
+            <Strings>
+               <ButtonText>Edit Profile</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadSelectedProfile" priority="0x0104" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarLoadGroup"/>
+            <Icon guid="guidToolBarIcons" id="imgLoad" />
+            <CommandFlag>Pict</CommandFlag>
+            <CommandFlag>DefaultDisabled</CommandFlag>
+            <Strings>
+               <ButtonText>Load Selected Profile</ButtonText>
+            </Strings>
+         </Button>
+         
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidLoadExSelectedProfile" priority="0x0106" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarLoadGroup"/>
+            <Icon guid="guidToolBarIcons" id="imgLoadEx" />
+            <CommandFlag>Pict</CommandFlag>
+            <CommandFlag>DefaultDisabled</CommandFlag>
+            <Strings>
+               <ButtonText>Load Selected Profile Exclusively</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadSelectedProfile" priority="0x0105" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarUnloadGroup"/>
+            <Icon guid="guidToolBarIcons" id="imgUnload" />
+            <CommandFlag>Pict</CommandFlag>
+            <CommandFlag>DefaultDisabled</CommandFlag>
+            <Strings>
+               <ButtonText>Unload Selected Profile</ButtonText>
+            </Strings>
+         </Button>
+
+         <Button guid="guidLoadedProjectsProfileManagerCmdSet" id="cmdidUnloadExSelectedProfile" priority="0x0107" type="Button">
+            <Parent guid="guidLoadedProjectsProfileManagerCmdSet" id="ToolbarUnloadGroup"/>
+            <Icon guid="guidToolBarIcons" id="imgUnloadEx" />
+            <CommandFlag>Pict</CommandFlag>
+            <CommandFlag>DefaultDisabled</CommandFlag>
+            <Strings>
+               <ButtonText>Unload Selected Profile and Load All Other Projects</ButtonText>
+            </Strings>
+         </Button>
+      </Buttons>
+
+
+      <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
+      <Bitmaps>
+         <!--  The bitmap id is defined in a way that is a little bit different from the others: 
+            the declaration starts with a guid for the bitmap strip, then there is the resource id of the 
+            bitmap strip containing the bitmaps and then there are the numeric ids of the elements used 
+            inside a button definition. An important aspect of this declaration is that the element id 
+            must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
+         <Bitmap guid="guidToolBarIcons" href="Resources\ToolBarIcons.png" usedList="imgAdd, imgDelete, imgEdit, imgLoad, imgLoadEx, imgSave, imgUnload, imgUnloadEx"/>         
+         <Bitmap guid="guidLoadSolution" href="Resources\LoadSolution.png" usedList="imgLoadSolution"/>
+         <Bitmap guid="guidUnloadSolution" href="Resources\UnloadSolution.png" usedList="imgUnloadSolution" />
+         <Bitmap guid="guidImgShowManager" href="Resources\ShowManager.png" usedList="imgShowManager" />
+      </Bitmaps>
+
+   </Commands>
+
+   <Symbols>
+      <!-- This is the package guid. -->
+      <GuidSymbol name="guidLoadedProjectsProfileManagerPkg" value="{a8380ee6-9355-4ab9-bbf1-914f4d00fbee}" />
+
+      <!-- This is the guid used to group the menu commands together -->
+      <GuidSymbol name="guidLoadedProjectsProfileManagerCmdSet" value="{515751ee-ed30-4ba6-9e92-3320d3bf5e60}">
+         <IDSymbol name="grpidRootMenu" value="0x1020" />
+         <IDSymbol name="grpidAllProjects" value="0x1021"/>
+         <IDSymbol name="grpidMRUProjects" value="0x1022"/>
+         <IDSymbol name="grpidSave" value="0x1023"/>
+         <IDSymbol name="grpidMore" value="0x1024"/>
+         <IDSymbol name="grpidMRU0Load" value="0x1100"/>
+         <IDSymbol name="grpidMRU1Load" value="0x1101"/>
+         <IDSymbol name="grpidMRU2Load" value="0x1102"/>
+         <IDSymbol name="grpidMRU3Load" value="0x1103"/>
+         <IDSymbol name="grpidMRU0Unload" value="0x1104"/>
+         <IDSymbol name="grpidMRU1Unload" value="0x1105"/>
+         <IDSymbol name="grpidMRU2Unload" value="0x1106"/>
+         <IDSymbol name="grpidMRU3Unload" value="0x1107"/>
+
+         <IDSymbol name="mnuidMainMenu" value="0x2000"/>
+         
+         <IDSymbol name="cmdidLoadAllProjectsInSolution" value="0x0100"/>
+         <IDSymbol name="cmdidUnloadAllProjectsInSolution" value="0x0101"/>
+         <IDSymbol name="cmdidMore" value="0x0190"/>
+         <IDSymbol name="cmdidViewManager" value="0x0191"/>
+
+         <IDSymbol name="mnuidMRU0" value="0x0200"/>
+         <IDSymbol name="mnuidMRU1" value="0x0201"/>
+         <IDSymbol name="mnuidMRU2" value="0x0202"/>
+         <IDSymbol name="mnuidMRU3" value="0x0203"/>
+
+         <IDSymbol name ="cmdidLoadMRU0" value="0x3000"/>
+         <IDSymbol name ="cmdidLoadMRU1" value="0x3001"/>
+         <IDSymbol name ="cmdidLoadMRU2" value="0x3002"/>
+         <IDSymbol name ="cmdidLoadMRU3" value="0x3003"/>
+
+         <IDSymbol name ="cmdidUnloadMRU0" value="0x3010"/>
+         <IDSymbol name ="cmdidUnloadMRU1" value="0x3011"/>
+         <IDSymbol name ="cmdidUnloadMRU2" value="0x3012"/>
+         <IDSymbol name ="cmdidUnloadMRU3" value="0x3013"/>
+
+         <IDSymbol name ="cmdidLoadExclusiveMRU0" value="0x3020"/>
+         <IDSymbol name ="cmdidLoadExclusiveMRU1" value="0x3021"/>
+         <IDSymbol name ="cmdidLoadExclusiveMRU2" value="0x3022"/>
+         <IDSymbol name ="cmdidLoadExclusiveMRU3" value="0x3023"/>
+
+         <IDSymbol name ="cmdidUnloadExclusiveMRU0" value="0x3030"/>
+         <IDSymbol name ="cmdidUnloadExclusiveMRU1" value="0x3031"/>
+         <IDSymbol name ="cmdidUnloadExclusiveMRU2" value="0x3032"/>
+         <IDSymbol name ="cmdidUnloadExclusiveMRU3" value="0x3033"/>
+
+         <IDSymbol name="ToolbarID" value="0x4000" />
+         <IDSymbol name="ToolbarFileGroup" value="0x4001" />
+         <IDSymbol name="ToolbarLoadGroup" value="0x4002"/>
+         <IDSymbol name="ToolbarUnloadGroup" value="0x4003"/>
+         
+         <IDSymbol name="cmdidAddProfile" value="0x132" />
+         <IDSymbol name="cmdidDeleteProfile" value="0x133" />
+         <IDSymbol name="cmdidEditProfile" value="0x134" />
+         <IDSymbol name="cmdidLoadSelectedProfile" value="0x135" />
+         <IDSymbol name="cmdidLoadExSelectedProfile" value="0x136" />
+         <IDSymbol name="cmdidUnloadSelectedProfile" value="0x137" />
+         <IDSymbol name="cmdidUnloadExSelectedProfile" value="0x138" />
+
+
+         <IDSymbol name="location" value="0x7020" />
+         <IDSymbol name="cmdCollapseSync" value="0x7100" />
+
+      </GuidSymbol>
+
+   
+      <GuidSymbol name="guidToolBarIcons" value="{246E3486-D5B1-42AA-95BE-6D2C1BC8AB28}">
+         <IDSymbol name="imgAdd" value="1"/>
+         <IDSymbol name="imgDelete" value="2"/>
+         <IDSymbol name="imgEdit" value="3"/>
+         <IDSymbol name="imgLoad" value="4"/>
+         <IDSymbol name="imgLoadEx" value="5"/>         
+         <IDSymbol name="imgSave" value="6"/>
+         <IDSymbol name="imgUnload" value="7"/>
+         <IDSymbol name="imgUnloadEx" value="8"/>
+      </GuidSymbol>
+
+      <GuidSymbol name="guidLoadSolution" value="{91033FDE-E606-4BC8-815B-727E1374FB19}" >
+         <IDSymbol name="imgLoadSolution" value="1" />
+      </GuidSymbol>
+
+      <GuidSymbol name="guidUnloadSolution" value="{44933AEF-BB74-4A16-B4F0-A411214F7273}" >
+         <IDSymbol name="imgUnloadSolution" value="1" />
+      </GuidSymbol>
+
+      <GuidSymbol name="guidImgShowManager" value="{C2B1EB41-05BE-4347-A356-ABF5BA109FF3}" >
+         <IDSymbol name="imgShowManager" value="1" />
+      </GuidSymbol>
+
+   </Symbols>
+
+</CommandTable>

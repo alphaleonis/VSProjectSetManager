@@ -1,0 +1,446 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l="clr-namespace:Alphaleonis.VSProjectSetMgr.Controls"
+   xmlns:converters="clr-namespace:Alphaleonis.VSProjectSetMgr.Converters"
+   xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.14.0"              
+   xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.14.0">
+
+   <Style x:Key="FocusVisual">
+      <Setter Property="Control.Template">
+         <Setter.Value>
+            <ControlTemplate>
+               <Rectangle Margin="2" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+            </ControlTemplate>
+         </Setter.Value>
+      </Setter>
+   </Style>
+
+   <Style x:Key="OptionMarkFocusVisual">
+      <Setter Property="Control.Template">
+         <Setter.Value>
+            <ControlTemplate>
+               <Rectangle Margin="14,0,0,0" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+            </ControlTemplate>
+         </Setter.Value>
+      </Setter>
+   </Style>
+
+   <SolidColorBrush x:Key="OptionMark.Static.Background" Color="#FFFFFFFF" />
+   <SolidColorBrush x:Key="OptionMark.Static.Border" Color="#FF707070" />
+   <SolidColorBrush x:Key="OptionMark.Static.Glyph" Color="#FF008400" />
+   <SolidColorBrush x:Key="implicitMark.Static.Glyph" Color="#ADADAD" />
+   <SolidColorBrush x:Key="partiallyIncludedMark.Static.Glyph" Color="#FF5C7BFF" />
+   <SolidColorBrush x:Key="ExclusionMark.Static.Glyph" Color="#FFCC0000" />
+
+   <SolidColorBrush x:Key="OptionMark.MouseOver.Background" Color="#FFF3F9FF" />
+   <SolidColorBrush x:Key="OptionMark.MouseOver.Border" Color="#FF5593FF" />
+   <SolidColorBrush x:Key="OptionMark.MouseOver.Glyph" Color="#FF008400" />
+   <SolidColorBrush x:Key="partiallyIncludedMark.MouseOver.Glyph" Color="#FF5C7BFF" />
+   <SolidColorBrush x:Key="ExclusionMark.MouseOver.Glyph" Color="#FFCC0000" />
+
+   <SolidColorBrush x:Key="OptionMark.Pressed.Background" Color="#FFD9ECFF" />
+   <SolidColorBrush x:Key="OptionMark.Pressed.Border" Color="#FF3C77DD" />
+   <SolidColorBrush x:Key="OptionMark.Pressed.Glyph" Color="#FF008400" />
+   <SolidColorBrush x:Key="ExclusionMark.Pressed.Glyph" Color="#FFCC0000" />
+   <SolidColorBrush x:Key="partiallyIncludedMark.Pressed.Glyph" Color="#FF212121" />
+
+   <SolidColorBrush x:Key="OptionMark.Disabled.Background" Color="#FFE6E6E6" />
+   <SolidColorBrush x:Key="OptionMark.Disabled.Border" Color="#FFBCBCBC" />
+   <SolidColorBrush x:Key="OptionMark.Disabled.Glyph" Color="#FF707070" />
+   <SolidColorBrush x:Key="partiallyIncludedMark.Disabled.Glyph" Color="#FF707070" />
+   <SolidColorBrush x:Key="ExclusionMark.Disabled.Glyph" Color="#FF707070" />
+
+
+   <Style TargetType="{x:Type l:InclusionExclusionCheckBox}">
+      <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+      <Setter Property="Background" Value="{StaticResource OptionMark.Static.Background}" />
+      <Setter Property="BorderBrush" Value="{StaticResource OptionMark.Static.Border}" />
+      <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Template">
+         <Setter.Value>
+            <ControlTemplate TargetType="{x:Type l:InclusionExclusionCheckBox}">
+               <Grid x:Name="templateRoot" SnapsToDevicePixels="True" Background="Transparent">
+                  <Grid.ColumnDefinitions>
+                     <ColumnDefinition Width="Auto"/>
+                     <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Border x:Name="checkBoxBorder" Width="14" Height="13"
+                            Margin="1" 
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}">
+                     <Grid x:Name="markGrid">
+                        <Path x:Name="optionMark" Opacity="0" Stretch="None" Margin="1" Fill="{StaticResource OptionMark.Static.Glyph}" Data="F1 M 9.97498,1.22334L 4.6983,9.09834L 4.52164,9.09834L 0,5.19331L 1.27664,3.52165L 4.255,6.08833L 8.33331,1.52588e-005L 9.97498,1.22334 Z "/>
+                        <Path x:Name="implicitMark" Opacity="0" Stretch="None" Margin="1" Fill="{StaticResource implicitMark.Static.Glyph}" Data="F1 M 9.97498,1.22334L 4.6983,9.09834L 4.52164,9.09834L 0,5.19331L 1.27664,3.52165L 4.255,6.08833L 8.33331,1.52588e-005L 9.97498,1.22334 Z "/>
+                        <Ellipse x:Name="partiallyIncludedMark" Margin="0" Stretch="Fill" Width="5" Height="5" SnapsToDevicePixels="False" Opacity="0" Fill="{StaticResource partiallyIncludedMark.Static.Glyph}" />
+                        <Path  x:Name="exclusionMark" Opacity="0" Stretch="Fill" Margin="1" Fill="{StaticResource ExclusionMark.Static.Glyph}" 
+                                 Data="F0 M0,3 L3,0 L10,7 L17,0 L20,3 L13,10 L20,17 L17,20 L10,13 L3,20 L0,17 L7,10 Z" />
+                     </Grid>
+                  </Border>
+                  <ContentPresenter x:Name="contentPresenter" 
+                            RecognizesAccessKey="True" 
+                            Grid.Column="1" 
+                            Margin="{TemplateBinding Padding}" 
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                            Focusable="False"/>
+               </Grid>
+               <ControlTemplate.Triggers>
+                  <Trigger Property="HasContent" Value="true">
+                     <Setter Property="FocusVisualStyle" Value="{StaticResource OptionMarkFocusVisual}"/>
+                     <Setter Property="Padding" Value="4,-1,0,0"/>
+                  </Trigger>
+                  <Trigger Property="IsMouseOver" Value="true">
+                     <Setter Property="Background" Value="{StaticResource OptionMark.MouseOver.Background}" TargetName="checkBoxBorder" />
+                     <Setter Property="BorderBrush" Value="{StaticResource OptionMark.MouseOver.Border}" TargetName="checkBoxBorder" />
+                     <Setter Property="Fill" Value="{StaticResource OptionMark.MouseOver.Glyph}" TargetName="optionMark" />
+                     <Setter Property="Fill" Value="{StaticResource partiallyIncludedMark.MouseOver.Glyph}" TargetName="partiallyIncludedMark" />
+                     <Setter Property="Fill" Value="{StaticResource ExclusionMark.MouseOver.Glyph}" TargetName="exclusionMark" />
+                  </Trigger>
+                  <Trigger Property="IsEnabled" Value="false">
+                     <Setter Property="Background" Value="{StaticResource OptionMark.Disabled.Background}" TargetName="checkBoxBorder" />
+                     <Setter Property="BorderBrush" Value="{StaticResource OptionMark.Disabled.Border}" TargetName="checkBoxBorder" />
+                     <Setter Property="Fill" Value="{StaticResource OptionMark.Disabled.Glyph}" TargetName="optionMark" />
+                     <Setter Property="Fill" Value="{StaticResource partiallyIncludedMark.Disabled.Glyph}" TargetName="partiallyIncludedMark" />
+                     <Setter Property="Fill" Value="{StaticResource ExclusionMark.Disabled.Glyph}" TargetName="exclusionMark" />
+                  </Trigger>
+                  <Trigger Property="IsPressed" Value="true">
+                     <Setter Property="Background" Value="{StaticResource OptionMark.Pressed.Background}" TargetName="checkBoxBorder" />
+                     <Setter Property="BorderBrush" Value="{StaticResource OptionMark.Pressed.Border}" TargetName="checkBoxBorder" />
+                     <Setter Property="Fill" Value="{StaticResource OptionMark.Pressed.Glyph}" TargetName="optionMark" />
+                     <Setter Property="Fill" Value="{StaticResource partiallyIncludedMark.Pressed.Glyph}" TargetName="partiallyIncludedMark" />
+                     <Setter Property="Fill" Value="{StaticResource ExclusionMark.Pressed.Glyph}" TargetName="exclusionMark" />
+                  </Trigger>
+                  <Trigger Property="State" Value="Included">
+                     <Setter Property="Opacity" Value="1" TargetName="optionMark" />
+                     <!--<Setter Property="Opacity" Value="0" TargetName="partiallyIncludedMark" />
+                     <Setter Property="Opacity" Value="0" TargetName="exclusionMark" />
+                     <Setter Property="Opacity" Value="0" TargetName="implicitMark" />-->
+                  </Trigger>
+                  <Trigger Property="State" Value="Excluded">
+                     <!--<Setter Property="Opacity" Value="0" TargetName="optionMark" />
+                     <Setter Property="Opacity" Value="0" TargetName="partiallyIncludedMark" />-->
+                     <Setter Property="Opacity" Value="1" TargetName="exclusionMark" />
+                     <!--<Setter Property="Opacity" Value="0" TargetName="implicitMark" />-->
+                  </Trigger>
+                  <Trigger Property="State" Value="ImplicitlyIncluded">
+                     <!--<Setter Property="Opacity" Value="0" TargetName="optionMark" />
+                     <Setter Property="Opacity" Value="0" TargetName="partiallyIncludedMark" />
+                     <Setter Property="Opacity" Value="0" TargetName="exclusionMark" />-->
+                     <Setter Property="Opacity" Value="1" TargetName="implicitMark" />
+                  </Trigger>
+                  <Trigger Property="State" Value="PartiallyIncluded">
+                     <!--<Setter Property="Opacity" Value="0" TargetName="optionMark" />-->
+                     <Setter Property="Opacity" Value="1" TargetName="partiallyIncludedMark" />
+                     <!--<Setter Property="Opacity" Value="0" TargetName="exclusionMark" />
+                     <Setter Property="Opacity" Value="0" TargetName="implicitMark" />-->
+                  </Trigger>
+               </ControlTemplate.Triggers>
+            </ControlTemplate>
+         </Setter.Value>
+      </Setter>
+   </Style>
+
+
+   <Style TargetType="{x:Type l:VsListBox}">
+      <Setter Property="Background" Value="{DynamicResource {x:Static ui:TreeViewColors.BackgroundBrushKey}}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource {x:Static ui:EnvironmentColors.BrandedUIBorderBrushKey}}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:TreeViewColors.BackgroundTextBrushKey}}"/>
+      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+      <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+      <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+      <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+      <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Template">
+         <Setter.Value>
+            <ControlTemplate TargetType="{x:Type ListBox}">
+               <Border Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="true"
+                            Padding="1">
+                  <ScrollViewer Padding="{TemplateBinding Padding}"
+                                      Focusable="false">
+                     <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                  </ScrollViewer>
+               </Border>
+               <ControlTemplate.Triggers>
+                  <Trigger Property="IsEnabled" Value="false">
+                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static ui:EnvironmentColors.BrandedUIBackgroundBrushKey}}" />
+                     <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource {x:Static ui:EnvironmentColors.BrandedUIBackgroundBrushKey}}" />
+                  </Trigger>
+                  <MultiTrigger>
+                     <MultiTrigger.Conditions>
+                        <Condition Property="IsGrouping" Value="true" />
+                        <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false" />
+                     </MultiTrigger.Conditions>
+                     <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                  </MultiTrigger>
+               </ControlTemplate.Triggers>
+            </ControlTemplate>
+         </Setter.Value>
+      </Setter>
+   </Style>
+
+   <Style TargetType="{x:Type l:VsListBoxItem}">
+      <Setter Property="SnapsToDevicePixels" Value="True" />
+      <Setter Property="Padding" Value="4,2" />
+      <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+      <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <!--<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />-->
+      <Setter Property="Template">
+         <Setter.Value>
+            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+               <Border x:Name="Bd" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        Background="{TemplateBinding Background}" 
+                        Padding="{TemplateBinding Padding}"                              
+                        SnapsToDevicePixels="true">
+                  <ContentPresenter                            
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+               </Border>
+               <ControlTemplate.Triggers>
+                  <MultiTrigger>
+                     <MultiTrigger.Conditions>
+                        <Condition Property="Selector.IsSelectionActive" Value="False" />
+                        <Condition Property="IsSelected" Value="True" />
+                     </MultiTrigger.Conditions>
+                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemInactiveBrushKey}}" />
+                     <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent" />
+                     <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemInactiveTextBrushKey}}" />
+                  </MultiTrigger>
+                  <MultiTrigger>
+                     <MultiTrigger.Conditions>
+                        <Condition Property="Selector.IsSelectionActive" Value="True" />
+                        <Condition Property="IsSelected" Value="True" />
+                     </MultiTrigger.Conditions>
+                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveBrushKey}}" />
+                     <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent" />
+                     <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveTextBrushKey}}" />
+                  </MultiTrigger>
+               </ControlTemplate.Triggers>
+            </ControlTemplate>
+         </Setter.Value>
+      </Setter>
+   </Style>
+
+
+
+   <!--  StandardTreeViewItemContainerStyle -->
+   <PathGeometry x:Key="TreeArrow">
+      <PathGeometry.Figures>
+         <PathFigureCollection>
+            <PathFigure IsFilled="True" StartPoint="0 0" IsClosed="True">
+               <PathFigure.Segments>
+                  <PathSegmentCollection>
+                     <LineSegment Point="0 6"/>
+                     <LineSegment Point="6 0"/>
+                  </PathSegmentCollection>
+               </PathFigure.Segments>
+            </PathFigure>
+         </PathFigureCollection>
+      </PathGeometry.Figures>
+   </PathGeometry>
+
+   <!-- FullRowSelectTreeViewItemStyle -->
+   <Style x:Key="{ComponentResourceKey TypeInTargetAssembly={x:Type l:CommonResources}, ResourceId=FullRowSelectTreeViewItemStyle}" TargetType="{x:Type TreeViewItem}">
+      <Setter Property="Padding" Value="3,1,3,1" />
+      <Setter Property="FontWeight" Value="Normal" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BorderBrush" Value="{x:Null}" />
+      <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:TreeViewColors.GlyphBrushKey}}" />
+      <Setter Property="l:TreeViewItemBehavior.SelectOnRightClick" Value="True" />
+      <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+      <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+      <Setter Property="Template">
+         <Setter.Value>
+            <ControlTemplate TargetType="{x:Type TreeViewItem}">
+               <ControlTemplate.Resources>
+                  <converters:LeftMarginMultiplierConverter Length="19" x:Key="lengthConverter" />
+               </ControlTemplate.Resources>
+               <StackPanel>
+                  <Border Name="Bd"
+                                Grid.Column="1"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="true">
+                     <Grid Margin="{Binding Converter={StaticResource lengthConverter}, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Grid.ColumnDefinitions>
+                           <ColumnDefinition MinWidth="19" Width="Auto"/>
+
+                           <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                           <RowDefinition Height="Auto"/>
+                           <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ToggleButton x:Name="Expander"                                 
+                                 IsChecked="{Binding Path=IsExpanded,RelativeSource={RelativeSource TemplatedParent}}"
+                                 ClickMode="Press">
+                           <ToggleButton.Style>
+                              <Style TargetType="{x:Type ToggleButton}">
+                                 <Setter Property="Focusable" Value="False"/>
+                                 <Setter Property="Width" Value="16"/>
+                                 <Setter Property="Height" Value="16"/>
+                                 <Setter Property="Template">
+                                    <Setter.Value>
+                                       <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                          <Border Width="16" Height="16" Background="Transparent" Padding="5,5,0,0" UseLayoutRounding="False">
+                                             <Path x:Name="ExpandPath"
+                                                Fill="Transparent"
+                                                UseLayoutRounding="False"
+                                                SnapsToDevicePixels="True"
+                                                Stroke="{DynamicResource {x:Static ui:TreeViewColors.GlyphBrushKey}}"
+                                                StrokeThickness="1"
+                                                Data="{StaticResource TreeArrow}">
+                                                <Path.RenderTransform>
+                                                   <RotateTransform Angle="135" CenterX="3" CenterY="3"/>
+                                                </Path.RenderTransform>
+                                             </Path>
+                                          </Border>
+                                          <ControlTemplate.Triggers>                                             
+                                             <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="ExpandPath" Property="RenderTransform">
+                                                   <Setter.Value>
+                                                      <RotateTransform Angle="180" CenterX="3" CenterY="3"/>
+                                                   </Setter.Value>
+                                                </Setter>
+                                                <Setter TargetName="ExpandPath" Property="Fill" Value="{DynamicResource {x:Static ui:TreeViewColors.GlyphBrushKey}}"/>
+                                             </Trigger>
+                                             
+                                             <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="ExpandPath" Property="Stroke" Value="{DynamicResource {x:Static ui:TreeViewColors.GlyphMouseOverBrushKey}}"/>
+                                             </Trigger>
+                                             
+                                             <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                   <Condition Property="IsMouseOver" Value="True"/>
+                                                   <Condition Property="IsChecked" Value="True"/>
+                                                </MultiTrigger.Conditions>
+                                                <Setter TargetName="ExpandPath" Property="Fill" Value="{DynamicResource {x:Static ui:TreeViewColors.GlyphMouseOverBrushKey}}"/>
+                                             </MultiTrigger>
+                                             
+                                             <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                   <Condition Binding="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}" Value="False" />
+                                                   <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter TargetName="ExpandPath" Property="Stroke" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveGlyphBrushKey}}"/>
+                                                <Setter TargetName="ExpandPath" Property="Fill" Value="Transparent"/>
+                                             </MultiDataTrigger>
+                                             <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                   <Condition Binding="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}" Value="False" />
+                                                   <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}}" Value="True" />
+                                                   <Condition Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter TargetName="ExpandPath" Property="Stroke" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveGlyphMouseOverBrushKey}}"/>
+                                                <Setter TargetName="ExpandPath" Property="Fill" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveGlyphMouseOverBrushKey}}"/>
+                                             </MultiDataTrigger>
+                                             <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                   <Condition Binding="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                   <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter TargetName="ExpandPath" Property="Stroke" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveGlyphBrushKey}}"/>
+                                                <Setter TargetName="ExpandPath" Property="Fill" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveGlyphBrushKey}}"/>
+                                             </MultiDataTrigger>
+                                             <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                   <Condition Binding="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                   <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}}" Value="True" />
+                                                   <Condition Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                </MultiDataTrigger.Conditions>                                                
+                                                <Setter TargetName="ExpandPath" Property="Fill" Value="{DynamicResource {x:Static ui:TreeViewColors.GlyphMouseOverBrushKey}}"/>
+                                             </MultiDataTrigger>
+                                          </ControlTemplate.Triggers>
+                                       </ControlTemplate>
+                                    </Setter.Value>
+                                 </Setter>
+                              </Style>
+                           </ToggleButton.Style>
+                        </ToggleButton>
+                        <ContentPresenter x:Name="PART_Header"
+                                          Grid.Column="1"
+                                              ContentSource="Header"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                     </Grid>
+                  </Border>
+                  <ItemsPresenter x:Name="ItemsHost"
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Grid.ColumnSpan="2"/>
+               </StackPanel>
+               <ControlTemplate.Triggers>
+                  <Trigger Property="IsExpanded" Value="false">
+                     <Setter TargetName="ItemsHost" Property="Visibility" Value="Collapsed"/>
+                  </Trigger>
+                  <Trigger Property="HasItems" Value="false">
+                     <Setter TargetName="Expander" Property="Visibility" Value="Hidden"/>
+                  </Trigger>
+
+                  <Trigger Property="IsSelected" Value="true">
+                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveBrushKey}}" />
+                     <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveTextBrushKey}}" />                     
+                  </Trigger>
+                  
+                  <MultiTrigger>
+                     <MultiTrigger.Conditions>
+                        <Condition Property="IsSelected" Value="true"/>
+                        <Condition Property="IsSelectionActive" Value="false"/>
+                     </MultiTrigger.Conditions>
+                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemInactiveBrushKey}}" />
+                     <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemInactiveTextBrushKey}}" />
+                  </MultiTrigger>
+
+                  <MultiDataTrigger>
+                     <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True"/>
+                        <Condition Binding="{Binding ContextMenu.IsOpen, RelativeSource={RelativeSource AncestorType=TreeView}}" Value="True"/>
+                     </MultiDataTrigger.Conditions>
+                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveBrushKey}}" />
+                     <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveTextBrushKey}}" />
+                  </MultiDataTrigger>
+                  
+                  <MultiTrigger>
+                     <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True" SourceName="Bd" />
+                        <Condition Property="IsSelected" Value="False" />
+                     </MultiTrigger.Conditions>
+                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static ui:EnvironmentColors.ComboBoxItemMouseOverBackgroundBrushKey}}" />
+                     <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:EnvironmentColors.ComboBoxItemMouseOverTextBrushKey}}" />
+                  </MultiTrigger>
+               </ControlTemplate.Triggers>
+            </ControlTemplate>
+         </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+         <Trigger Property="VirtualizingPanel.IsVirtualizing" Value="true">
+            <Setter Property="ItemsPanel">
+               <Setter.Value>
+                  <ItemsPanelTemplate>
+                     <VirtualizingStackPanel/>
+                  </ItemsPanelTemplate>
+               </Setter.Value>
+            </Setter>
+         </Trigger>
+      </Style.Triggers>
+   </Style>
+</ResourceDictionary>
