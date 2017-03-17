@@ -155,7 +155,7 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void WriteLog(string message)
       {         
-         m_outputWindow.GetOrCreatePane(m_outputPaneGuid, "Project Set Manager", false).WriteLine(message);
+         m_outputWindow.GetOrCreatePane(m_outputPaneGuid, "Project Set Manager", true).WriteLine(message);
       }
 
       public SolutionInfo GetSolutionInfo()
