@@ -182,9 +182,11 @@
     <Compile Include="Controls\VsListBox.cs" />
     <Compile Include="Controls\VsListBoxItem.cs" />
     <Compile Include="IProgressInfoImplementer.cs" />
+    <Compile Include="Model\IOutputWindow.cs" />
     <Compile Include="ProjectSetManagerOptions.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Utils\ServiceProviderExtensions.cs" />
     <Compile Include="ViewModels\Nodes\ProjectInfoStateExtensionMethods.cs" />
     <Compile Include="ViewModels\ProjectSetRepositoryViewModel.cs" />
     <Compile Include="Themes\CommonResources.cs" />

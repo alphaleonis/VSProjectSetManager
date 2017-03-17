@@ -262,7 +262,8 @@ namespace Alphaleonis.VSProjectSetMgr
          IVsSolution solution = (IVsSolution)m_serviceProvider.GetService(typeof(SVsSolution));
          if (null != solution)
          {
-            return new SolutionManager(solution);
+            OutputWindow outputWindow = new OutputWindow(m_serviceProvider);
+            return new SolutionManager(solution, outputWindow);
          }
 
          return null;

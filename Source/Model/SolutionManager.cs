@@ -15,6 +15,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Threading;
+using Alphaleonis.VSProjectSetMgr;
 
 namespace Alphaleonis.VSProjectSetMgr
 {
@@ -52,7 +53,7 @@ namespace Alphaleonis.VSProjectSetMgr
             return m_id;
          }
       }
-      
+
       public string Name
       {
          get
@@ -76,7 +77,7 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public override bool Equals(object obj)
       {
-         return Equals(obj as ProjectDescriptor);         
+         return Equals(obj as ProjectDescriptor);
       }
 
       public override int GetHashCode()
@@ -132,22 +133,30 @@ namespace Alphaleonis.VSProjectSetMgr
    {
       #region Private Fields
 
+      private readonly static Guid m_outputPaneGuid = new Guid("BF899951-951D-4CC6-9D57-8C42C710BE35");
       private readonly static Guid m_solutionFolderId = new Guid("{66A26720-8FB5-11D2-AA7E-00C04F688DDE}");
       private readonly IVsSolution m_solution;
       private readonly IVsSolution4 m_solution4;
+      private readonly IOutputWindow m_outputWindow;
 
       #endregion
 
-      public SolutionManager(IVsSolution solution)
+      public SolutionManager(IVsSolution solution, IOutputWindow outputWindow)
       {
          if (solution == null)
             throw new ArgumentNullException("solution", "solution is null.");
 
          m_solution = solution;
          m_solution4 = (IVsSolution4)solution;
+         m_outputWindow = outputWindow;
       }
 
       #region Public Methods
+
+      private void WriteLog(string message)
+      {         
+         m_outputWindow.GetOrCreatePane(m_outputPaneGuid, "Project Set Manager", false).WriteLine(message);
+      }
 
       public SolutionInfo GetSolutionInfo()
       {
@@ -158,7 +167,7 @@ namespace Alphaleonis.VSProjectSetMgr
          return new SolutionInfo(solDir, solFile, solOptsFile);
       }
 
-      public IEnumerable<ProjectDescriptor> GetProjects(ProjectOptions options, bool includeSolutionFolders = false)
+      public IEnumerable<ProjectDescriptor> GetProjects(ProjectOptions options, bool includeMiscProjectsAndSolutionFolders = false)
       {
          IEnumHierarchies ppEnum;
          Guid tempGuid = Guid.Empty;
@@ -186,14 +195,20 @@ namespace Alphaleonis.VSProjectSetMgr
                   {
                      Project project = pVar as Project;
                      if (project != null)
-                        Guid.TryParse(project.Kind, out projectKind);                        
+                        Guid.TryParse(project.Kind, out projectKind);
                   }
                }
 
                // Solution Folder: {66A26720-8FB5-11D2-AA7E-00C04F688DDE}
                // If the project is actually a solution folder and we have elected to skip those, then skip it.
-               if (!includeSolutionFolders && projectKind.Equals(new Guid("{66A26720-8FB5-11D2-AA7E-00C04F688DDE}")))
-                  continue;
+               if (!includeMiscProjectsAndSolutionFolders)
+               {
+                  if (projectKind == Guid.Parse(EnvDTE.Constants.vsProjectKindSolutionItems) ||
+                      projectKind == Guid.Parse(EnvDTE.Constants.vsProjectKindMisc))
+                  {
+                     continue;
+                  }
+               }
 
 
                //object pImage;
@@ -208,49 +223,67 @@ namespace Alphaleonis.VSProjectSetMgr
          }
       }
 
-      public void UnloadProject(Guid projectId)
+      public void UnloadProject(ProjectDescriptor project)
       {
-         ErrorHandler.ThrowOnFailure(m_solution4.UnloadProject(ref projectId, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser));
+         Guid projectId = project.Id;
+         WriteLog($"Unloading project \"{project.Name ?? project.Id.ToString()}\"");
+         try
+         {
+            ErrorHandler.ThrowOnFailure(m_solution4.UnloadProject(ref projectId, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser));
+         }
+         catch (Exception ex)
+         {
+            WriteLog($"Error: Failed to unload project \"{project.Name ?? project.Id.ToString()}\"; {ex.Message}");
+         }
       }
 
-      public void LoadProject(Guid projectId)
+      public void LoadProject(ProjectDescriptor project)
       {
-         ErrorHandler.ThrowOnFailure(m_solution4.ReloadProject(ref projectId));
+         Guid projectId = project.Id;
+         WriteLog($"Loading project \"{project.Name ?? project.Id.ToString()}\"");
+         try
+         {
+            ErrorHandler.ThrowOnFailure(m_solution4.ReloadProject(ref projectId));
+         }
+         catch (Exception ex)
+         {
+            WriteLog($"Error: Failed to load project \"{project.Name ?? project.Id.ToString()}\"; {ex.Message}");
+         }
       }
 
       public void UnloadExclusive(ISet<Guid> projects)
       {
-         foreach (var project in GetProjects(ProjectOptions.Unloaded, false).Where(p => !projects.Contains(p.Id)))
-            LoadProject(project.Id);
+         foreach (ProjectDescriptor project in GetProjects(ProjectOptions.Unloaded, false).Where(p => !projects.Contains(p.Id)))
+            LoadProject(project);
 
          foreach (var project in GetProjects(ProjectOptions.Loaded, false).Where(p => projects.Contains(p.Id)))
-            UnloadProject(project.Id);
+            UnloadProject(project);
       }
 
       public void LoadExclusive(ISet<Guid> projects)
       {
          foreach (var project in GetProjects(ProjectOptions.Loaded, false).Where(p => !projects.Contains(p.Id)))
-            UnloadProject(project.Id);
+            UnloadProject(project);
 
          foreach (var project in GetProjects(ProjectOptions.Unloaded, false).Where(p => projects.Contains(p.Id)))
-            LoadProject(project.Id);
+            LoadProject(project);
       }
 
       public void Unload(ISet<Guid> projects)
       {
          foreach (var project in GetProjects(ProjectOptions.Loaded, false).Where(p => projects.Contains(p.Id)))
-            UnloadProject(project.Id);
+            UnloadProject(project);
       }
 
       public void Load(ISet<Guid> projects)
       {
          foreach (var project in GetProjects(ProjectOptions.Unloaded, false).Where(p => projects.Contains(p.Id)))
          {
-            LoadProject(project.Id);
+            LoadProject(project);
          }
       }
 
-      
+
       public void SaveUserOpts()
       {
          m_solution4.WriteUserOptsFile();
@@ -441,10 +474,10 @@ namespace Alphaleonis.VSProjectSetMgr
             return null;
          }
          else
-         {            
+         {
             ISolutionHierarchyItem item = CreateSolutionHierarchyItemDirect(hierarchy, itemId);
             ISolutionHierarchyContainerItem container = item as ISolutionHierarchyContainerItem;
-            
+
             if (container != null)
             {
                if (solutionNode == null)
@@ -459,7 +492,7 @@ namespace Alphaleonis.VSProjectSetMgr
                {
                   ISolutionHierarchyItem childItem = GetSolutionHierarchy(hierarchy, childId, visibleNodesOnly, solutionNode);
                   if (childItem != null)
-                  {                     
+                  {
                      container.Children.Add(childItem);
 
                      // Due to a bug in VS, enumerating the solution node actually returns all projects within the solution, at any depth,
@@ -469,7 +502,7 @@ namespace Alphaleonis.VSProjectSetMgr
                   }
                }
             }
-            
+
             return item;
          }
       }

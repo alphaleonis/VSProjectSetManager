@@ -105,7 +105,7 @@ namespace Alphaleonis.VSProjectSetMgr
          {
             foreach (var project in solMgr.GetProjects(ProjectOptions.Loaded))
             {
-               solMgr.UnloadProject(project.Id);
+               solMgr.UnloadProject(project);
             }
          }
       }
@@ -136,7 +136,7 @@ namespace Alphaleonis.VSProjectSetMgr
          {
             foreach (var project in solMgr.GetProjects(ProjectOptions.Unloaded))
             {
-               solMgr.LoadProject(project.Id);
+               solMgr.LoadProject(project);
             }
          }
       }
@@ -375,7 +375,7 @@ namespace Alphaleonis.VSProjectSetMgr
          IVsSolution solution = (IVsSolution)GetService(typeof(SVsSolution));
          if (null != solution)
          {
-            return new SolutionManager(solution);
+            return new SolutionManager(solution, new OutputWindow(this));
          }
 
          return null;
