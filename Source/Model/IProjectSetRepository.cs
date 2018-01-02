@@ -1,4 +1,5 @@
 using Alphaleonis.VSProjectSetMgr.ViewModels.Nodes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -44,9 +45,9 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public ObservableCollection<ProjectSet> ProjectSets
       {
-         get 
-         { 
-            return m_projectSets; 
+         get
+         {
+            return m_projectSets;
          }
       }
 
@@ -64,7 +65,7 @@ namespace Alphaleonis.VSProjectSetMgr
                m_projectSets.Clear();
             }
          }
-   }
+      }
       #endregion
 
       #region Methods
@@ -82,36 +83,81 @@ namespace Alphaleonis.VSProjectSetMgr
          }
       }
 
-      public void Save(Stream stream)
+      public void SaveBinary(Stream stream)
       {
          using (BinaryWriter writer = new BinaryWriter(stream, Encoding.Unicode, true))
          {
-            Save(writer);
+            SaveBinary(writer);
          }
       }
 
-      public void Save(BinaryWriter writer)
+      public void SaveBinary(BinaryWriter writer)
       {
          writer.Write(ProjectSets.Count);
          foreach (var projectSet in ProjectSets)
             projectSet.Serialize(writer);
       }
 
-      public void Load(Stream stream, SolutionManager solMgr)
+      public void SaveJson(Stream stream)
       {
-         using (BinaryReader reader = new BinaryReader(stream, Encoding.Unicode, true))
+         using (StreamWriter streamWriter = new StreamWriter(stream, Encoding.UTF8, 4096, true))
+         using (JsonWriter writer = new JsonTextWriter(streamWriter))
          {
-            Load(reader, solMgr);
+            SaveJson(writer);
          }
       }
 
-      private void Load(BinaryReader reader, SolutionManager solMgr)
+      public void SaveJson(JsonWriter writer)
+      {
+         JsonSerializer serializer = JsonSerializer.Create(new JsonSerializerSettings()
+         {
+            Formatting = Formatting.Indented            
+         });
+         serializer.Serialize(writer, m_projectSets);
+      }
+
+      public bool TryLoadJson(Stream stream, SolutionManager solMgr)
+      {
+         try
+         {
+            using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8, true, 4096, true))
+            using (JsonReader reader = new JsonTextReader(streamReader))
+            {
+               JsonSerializer serializer = JsonSerializer.Create();
+               var projectSets = serializer.Deserialize<ObservableCollection<ProjectSet>>(reader);
+               if (projectSets == null)
+               {
+                  return false;
+               }
+
+               m_projectSets.Clear();
+               foreach (var projectSet in projectSets)
+                  m_projectSets.Add(projectSet);
+            }
+
+            return true;
+         }
+         catch (JsonReaderException)
+         {
+            return false;
+         }
+      }
+
+      public void LoadBinary(Stream stream, SolutionManager solMgr)
+      {
+         using (BinaryReader reader = new BinaryReader(stream, Encoding.Unicode, true))
+         {
+            LoadBinary(reader, solMgr);
+         }
+      }
+
+      private void LoadBinary(BinaryReader reader, SolutionManager solMgr)
       {
          List<ProjectSet> projectSets = new List<ProjectSet>();
          int count = reader.ReadInt32();
          for (int i = 0; i < count; i++)
          {
-            projectSets.Add(new ProjectSet(reader));               
+            projectSets.Add(new ProjectSet(reader));
          }
 
          if (ProjectSets.Count > 0)
@@ -122,5 +168,5 @@ namespace Alphaleonis.VSProjectSetMgr
       }
 
       #endregion                    
-   }   
+   }
 }

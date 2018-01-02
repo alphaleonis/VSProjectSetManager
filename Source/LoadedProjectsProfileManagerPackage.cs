@@ -57,7 +57,7 @@ namespace Alphaleonis.VSProjectSetMgr
          m_interactionService = new InteractionService(this);
          container.AddService(typeof(SInteractionService), m_interactionService, true);
          m_repository = new ProjectSetRepository();
-         container.AddService(typeof(SProjectSetRepository), m_repository, true);         
+         container.AddService(typeof(SProjectSetRepository), m_repository, true);
       }
 
       #region Package Members
@@ -270,14 +270,13 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          if (key.Equals(OptionSolutionProfiles))
          {
-
             var settings = GetSettings();
             try
             {
-               m_repository.Load(stream, GetSolutionManager());
+               m_repository.LoadBinary(stream, GetSolutionManager());
             }
             catch (Exception ex)
-            {
+            {               
                m_interactionService.ShowError("Error loading profile configuration from solution:\r\n{0}", ex.Message);
             }
          }
@@ -296,7 +295,7 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          if (key.Equals(OptionSolutionProfiles))
          {
-            var settings = GetSettings();            
+            var settings = GetSettings();
 
             if (settings.Storage == ProjectSetProfileStorage.ExternalFile)
             {
@@ -312,7 +311,7 @@ namespace Alphaleonis.VSProjectSetMgr
 
             try
             {
-               m_repository.Save(stream);
+               m_repository.SaveBinary(stream);
             }
             catch (Exception ex)
             {
@@ -333,21 +332,74 @@ namespace Alphaleonis.VSProjectSetMgr
             SolutionInfo info = solMgr.GetSolutionInfo();
             IVsQueryEditQuerySave2 queryEditQuerySave = (IVsQueryEditQuerySave2)GetService(typeof(SVsQueryEditQuerySave));
 
-            string targetPath = Path.ChangeExtension(info.SolutionFile, ".vspsm");
-            tagVSQuerySaveResult querySaveResult = tagVSQuerySaveResult.QSR_SaveOK;
-            if (queryEditQuerySave != null)
+            string tempPath = Path.GetTempFileName();
+            using (FileStream fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-               uint result;
-               ErrorHandler.ThrowOnFailure(queryEditQuerySave.QuerySaveFile(targetPath, 0, null, out result));
-               querySaveResult = (tagVSQuerySaveResult)result;
+               m_repository.SaveJson(fs);
             }
 
-            if (querySaveResult == tagVSQuerySaveResult.QSR_SaveOK)
+            string targetPath = Path.ChangeExtension(info.SolutionFile, ".vspsm");
+
+            if (!AreFilesIdentical(tempPath, targetPath))
             {
-               var settings = GetSettings();
-               using (FileStream fs = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
+               tagVSQuerySaveResult querySaveResult = tagVSQuerySaveResult.QSR_SaveOK;
+               if (queryEditQuerySave != null)
                {
-                  m_repository.Save(fs);
+                  uint result;
+                  ErrorHandler.ThrowOnFailure(queryEditQuerySave.QuerySaveFile(targetPath, 0, null, out result));
+                  querySaveResult = (tagVSQuerySaveResult)result;
+               }
+
+               if (querySaveResult == tagVSQuerySaveResult.QSR_SaveOK)
+               {
+                  var settings = GetSettings();
+                  using (FileStream fin = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.None))
+                  using (FileStream fout = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                  {
+                     fin.CopyTo(fout);
+                  }
+               }
+            }
+         }
+      }
+
+      private static bool AreFilesIdentical(string file1, string file2, int bufferSize = 2048)
+      {
+         if (!File.Exists(file1) || !File.Exists(file2))
+            return false;
+
+         byte[] buffer1 = new byte[bufferSize];
+         byte[] buffer2 = new byte[bufferSize];
+
+         using (FileStream fs1 = new FileStream(file1, FileMode.Open, FileAccess.Read, FileShare.Read))
+         using (FileStream fs2 = new FileStream(file2, FileMode.Open, FileAccess.Read, FileShare.Read))
+         {
+            long totalBytes = 0;
+            while (true)
+            {
+               if (fs1.Length != fs2.Length)
+               {
+                  return false;
+               }
+
+               int read1 = fs1.Read(buffer1, 0, buffer1.Length);
+               int read2 = fs2.Read(buffer2, 0, buffer2.Length);
+
+               if (read1 != read2)
+                  return false;
+
+               if (read1 > 0)
+               {
+                  for (int i = 0; i < read1; i++)
+                  {
+                     if (buffer1[i] != buffer2[i])
+                        return false;
+                  }
+                  totalBytes += read1;
+               }
+               else
+               {
+                  return true;
                }
             }
          }
@@ -360,15 +412,22 @@ namespace Alphaleonis.VSProjectSetMgr
          if (solMgr != null)
          {
             SolutionInfo info = solMgr.GetSolutionInfo();
+
             string targetPath = Path.ChangeExtension(info.SolutionFile, ".vspsm");
 
-            using (FileStream fs = new FileStream(targetPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            if (File.Exists(targetPath))
             {
-               m_repository.Load(fs, solMgr);
+               using (FileStream fs = new FileStream(targetPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+               {
+                  if (!m_repository.TryLoadJson(fs, solMgr))
+                  {
+                     fs.Position = 0;
+                     m_repository.LoadBinary(fs, solMgr);
+                  }
+               }
             }
          }
       }
-
 
       private SolutionManager GetSolutionManager()
       {
@@ -464,8 +523,8 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          return VSConstants.E_NOTIMPL;
       }
-      
-      #endregion      
+
+      #endregion
 
       protected override void Dispose(bool disposing)
       {

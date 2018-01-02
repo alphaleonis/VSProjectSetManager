@@ -153,7 +153,7 @@ namespace Alphaleonis.VSProjectSetMgr
 
       #region Public Methods
 
-      private void WriteLog(string message)
+      public void WriteLog(string message)
       {         
          m_outputWindow.GetOrCreatePane(m_outputPaneGuid, "Project Set Manager", true).WriteLine(message);
       }

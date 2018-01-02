@@ -1,4 +1,5 @@
 using Alphaleonis.VSProjectSetMgr.Controls;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,17 +10,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Xml.Serialization;
 
 namespace Alphaleonis.VSProjectSetMgr
 {
+   [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
    class ProjectSet : ObservableBase
    {
       #region Private Fields
 
+      [JsonProperty("Projects", Order = 2)]
       private readonly Dictionary<Guid, bool> m_projects;
+
+      [JsonProperty("Name", Order = 1)]
       private string m_name;
 
       #endregion
+
+      private ProjectSet()
+      {
+
+      }
 
       public ProjectSet(BinaryReader reader)
       {
@@ -99,7 +110,6 @@ namespace Alphaleonis.VSProjectSetMgr
             m_projects.Add(item.Item.Id, item.State.Value);
          }
       }
-
 
       private ISet<Guid> GetIncludedProjectIds(ISolutionHierarchyItem item, HashSet<Guid> ids, bool isParentIncluded)
       {
