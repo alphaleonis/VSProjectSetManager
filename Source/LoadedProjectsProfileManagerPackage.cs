@@ -338,7 +338,7 @@ namespace Alphaleonis.VSProjectSetMgr
                m_repository.SaveJson(fs);
             }
 
-            string targetPath = Path.ChangeExtension(info.SolutionFile, ".vspsm");
+            string targetPath = Path.ChangeExtension(info.SolutionFile, ".projectSets.json");
 
             if (!AreFilesIdentical(tempPath, targetPath))
             {
@@ -405,7 +405,6 @@ namespace Alphaleonis.VSProjectSetMgr
          }
       }
 
-
       private void LoadOptionsExternal()
       {
          SolutionManager solMgr = GetSolutionManager();
@@ -413,17 +412,19 @@ namespace Alphaleonis.VSProjectSetMgr
          {
             SolutionInfo info = solMgr.GetSolutionInfo();
 
-            string targetPath = Path.ChangeExtension(info.SolutionFile, ".vspsm");
 
-            if (File.Exists(targetPath))
+            string targetBinaryPath = Path.ChangeExtension(info.SolutionFile, ".vspsm");
+            string targetJsonPath = Path.ChangeExtension(info.SolutionFile, ".projectSets.json");
+
+            if (File.Exists(targetJsonPath))
             {
-               using (FileStream fs = new FileStream(targetPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+               m_repository.LoadJson(targetJsonPath, solMgr);
+            }
+            else if (File.Exists(targetBinaryPath))
+            {
+               using (FileStream fs = new FileStream(targetBinaryPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                {
-                  if (!m_repository.TryLoadJson(fs, solMgr))
-                  {
-                     fs.Position = 0;
-                     m_repository.LoadBinary(fs, solMgr);
-                  }
+                  m_repository.LoadBinary(fs, solMgr);
                }
             }
          }

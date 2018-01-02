@@ -116,30 +116,22 @@ namespace Alphaleonis.VSProjectSetMgr
          serializer.Serialize(writer, m_projectSets);
       }
 
-      public bool TryLoadJson(Stream stream, SolutionManager solMgr)
+      public void LoadJson(string fileName, SolutionManager solMgr)
       {
-         try
+         using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+         using (StreamReader streamReader = new StreamReader(fs, Encoding.UTF8, true, 4096, true))
+         using (JsonReader reader = new JsonTextReader(streamReader))
          {
-            using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8, true, 4096, true))
-            using (JsonReader reader = new JsonTextReader(streamReader))
+            JsonSerializer serializer = JsonSerializer.Create();
+            var projectSets = serializer.Deserialize<ObservableCollection<ProjectSet>>(reader);
+            if (projectSets == null)
             {
-               JsonSerializer serializer = JsonSerializer.Create();
-               var projectSets = serializer.Deserialize<ObservableCollection<ProjectSet>>(reader);
-               if (projectSets == null)
-               {
-                  return false;
-               }
-
-               m_projectSets.Clear();
-               foreach (var projectSet in projectSets)
-                  m_projectSets.Add(projectSet);
+               projectSets = new ObservableCollection<ProjectSet>();
             }
 
-            return true;
-         }
-         catch (JsonReaderException)
-         {
-            return false;
+            m_projectSets.Clear();
+            foreach (var projectSet in projectSets)
+               m_projectSets.Add(projectSet);
          }
       }
 
