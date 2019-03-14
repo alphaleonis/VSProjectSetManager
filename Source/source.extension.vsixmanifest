@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="6B92280F-2172-4391-A782-6967F1777D4A" Version="1.3.2" Language="en-US" Publisher="Peter Palotas" />
+        <Identity Id="6B92280F-2172-4391-A782-6967F1777D4A" Version="1.3.3" Language="en-US" Publisher="Peter Palotas" />
         <DisplayName>Project Set Manager</DisplayName>
         <Description xml:space="preserve">The Alphaleonis Project Set Manager allows saving and restoring which projects are currently loaded in the solution in named profiles. This makes it easier to work with very large solutions where you frequently find yourself unloading and loading different sets of projects to speed build and load times based on what you are currently working on.</Description>
         <License>LICENSE.txt</License>
