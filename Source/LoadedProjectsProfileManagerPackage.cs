@@ -332,31 +332,34 @@ namespace Alphaleonis.VSProjectSetMgr
             SolutionInfo info = solMgr.GetSolutionInfo();
             IVsQueryEditQuerySave2 queryEditQuerySave = (IVsQueryEditQuerySave2)GetService(typeof(SVsQueryEditQuerySave));
 
-            string tempPath = Path.GetTempFileName();
-            using (FileStream fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-               m_repository.SaveJson(fs);
-            }
-
             string targetPath = Path.ChangeExtension(info.SolutionFile, ".projectSets.json");
-
-            if (!AreFilesIdentical(tempPath, targetPath))
+            if (m_repository.ProjectSets.Any() || File.Exists(targetPath))
             {
-               tagVSQuerySaveResult querySaveResult = tagVSQuerySaveResult.QSR_SaveOK;
-               if (queryEditQuerySave != null)
+
+               string tempPath = Path.GetTempFileName();
+               using (FileStream fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
                {
-                  uint result;
-                  ErrorHandler.ThrowOnFailure(queryEditQuerySave.QuerySaveFile(targetPath, 0, null, out result));
-                  querySaveResult = (tagVSQuerySaveResult)result;
+                  m_repository.SaveJson(fs);
                }
 
-               if (querySaveResult == tagVSQuerySaveResult.QSR_SaveOK)
+               if (!AreFilesIdentical(tempPath, targetPath))
                {
-                  var settings = GetSettings();
-                  using (FileStream fin = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.None))
-                  using (FileStream fout = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                  tagVSQuerySaveResult querySaveResult = tagVSQuerySaveResult.QSR_SaveOK;
+                  if (queryEditQuerySave != null)
                   {
-                     fin.CopyTo(fout);
+                     uint result;
+                     ErrorHandler.ThrowOnFailure(queryEditQuerySave.QuerySaveFile(targetPath, 0, null, out result));
+                     querySaveResult = (tagVSQuerySaveResult)result;
+                  }
+
+                  if (querySaveResult == tagVSQuerySaveResult.QSR_SaveOK)
+                  {
+                     var settings = GetSettings();
+                     using (FileStream fin = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.None))
+                     using (FileStream fout = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                     {
+                        fin.CopyTo(fout);
+                     }
                   }
                }
             }
