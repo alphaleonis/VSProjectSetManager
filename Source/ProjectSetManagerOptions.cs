@@ -26,7 +26,7 @@ namespace Alphaleonis.VSProjectSetMgr
    {
       public ProjectSetManagerUserOptions()
       {
-         Storage = ProjectSetProfileStorage.Solution;
+         Storage = ProjectSetProfileStorage.ExternalFile;
          EditWindowLeft = 100;
          EditWindowWidth = 300;
          EditWindowTop = 100;
