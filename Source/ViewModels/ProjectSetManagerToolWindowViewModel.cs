@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace Alphaleonis.VSProjectSetMgr
 {
@@ -32,7 +33,9 @@ namespace Alphaleonis.VSProjectSetMgr
       private readonly DelegateCommand m_deleteCommand;
 
       public ProjectSetManagerToolWindowViewModel(IServiceProvider serviceProvider)
-      {       
+      {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          m_serviceProvider = serviceProvider;
          m_repository = (IProjectSetRepository)m_serviceProvider.RequireService<SProjectSetRepository>();
          m_interactionService = (IInteractionService)m_serviceProvider.RequireService<SInteractionService>();
@@ -48,7 +51,7 @@ namespace Alphaleonis.VSProjectSetMgr
 
          OleMenuCommandService mcs = m_serviceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
          if (null != mcs)
-         {
+         {            
             mcs.AddCommand(new OleMenuCommand(OnDeleteProfile, null, OnQuerySelectedItemCommandStatus, GetCommandID(PkgCmdIDList.cmdidDeleteProfile)));
             mcs.AddCommand(new OleMenuCommand(OnAddProfile, null, OnQueryGlobalCommandStatus, GetCommandID(PkgCmdIDList.cmdidAddProfile)));
             mcs.AddCommand(new OleMenuCommand(OnEditProfile, null, OnQuerySelectedItemCommandStatus, GetCommandID(PkgCmdIDList.cmdidEditProfile)));
@@ -138,6 +141,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
          set
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
+
             bool wasNull = m_selectedItem == null;
             if (SetValue(ref m_selectedItem, value))
             {
@@ -165,6 +170,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnAddProfile(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          SolutionManager solMgr = GetSolutionManager();
          if (solMgr != null)
          {
@@ -212,6 +219,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnEditProfile(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          SolutionManager solMgr = GetSolutionManager();
 
          if (solMgr != null)
@@ -259,6 +268,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private SolutionManager GetSolutionManager()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          IVsSolution solution = (IVsSolution)m_serviceProvider.GetService(typeof(SVsSolution));
          if (null != solution)
          {
@@ -271,6 +282,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnLoadProfile(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          SolutionManager solMgr = GetSolutionManager();
          if (solMgr != null)
          {
@@ -284,6 +297,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnUnloadProfile(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          SolutionManager solMgr = GetSolutionManager();
          if (solMgr != null)
          {
@@ -296,6 +311,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnLoadExProfile(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          SolutionManager solMgr = GetSolutionManager();
          if (solMgr != null)
          {
@@ -308,6 +325,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnUnloadExProfile(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          SolutionManager solMgr = GetSolutionManager();
          if (solMgr != null)
          {
@@ -347,6 +366,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       void UpdateUI(bool synchronous)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          IVsUIShell vsShell = (IVsUIShell)m_serviceProvider.GetService(typeof(IVsUIShell));
          if (vsShell != null)
          {

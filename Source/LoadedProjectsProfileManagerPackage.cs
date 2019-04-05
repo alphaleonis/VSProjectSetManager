@@ -16,7 +16,10 @@ using Alphaleonis.VSProjectSetMgr.Views;
 using Alphaleonis.VSProjectSetMgr.ViewModels.Nodes;
 using System.ComponentModel;
 using System.IO;
-
+using System.Threading;
+using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
+using System.Windows.Threading;
 
 namespace Alphaleonis.VSProjectSetMgr
 {
@@ -25,17 +28,17 @@ namespace Alphaleonis.VSProjectSetMgr
       ProjectSetManagerUserOptions GetSettings();
    }
 
-   [PackageRegistration(UseManagedResourcesOnly = true)]
+   [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
    [ProvideMenuResource("Menus.ctmenu", 1)]
    [Guid(GuidList.guidLoadedProjectsProfileManagerPkgString)]
    [ProvideToolWindow(typeof(ProjectSetManagerToolWindow))]
-   [ProvideAutoLoad("{F1536EF8-92EC-443C-9ED7-FDADF150DA82}")]
-   [ProvideService(typeof(SProjectSetRepository))]
-   [ProvideService(typeof(SInteractionService))]
+   [ProvideAutoLoad("{F1536EF8-92EC-443C-9ED7-FDADF150DA82}", PackageAutoLoadFlags.BackgroundLoad)]
+   [ProvideService(typeof(SProjectSetRepository), IsAsyncQueryable = true)]
+   [ProvideService(typeof(SInteractionService), IsAsyncQueryable = true)]
    [ProvideOptionPage(typeof(ProjectSetManagerUserOptions), "Project Set Manager", "General", 0, 0, true)]
    [ProvideProfileAttribute(typeof(ProjectSetManagerUserOptions), "Project Set Manager", "General", 0, 0, true)]
-   public sealed class LoadedProjectsProfileManagerPackage : Package, IVsSolutionEvents, ISettingsProvider
+   public sealed class LoadedProjectsProfileManagerPackage : AsyncPackage, IVsSolutionEvents, ISettingsProvider
    {
       private uint m_eventsCookie;
       private const string OptionSolutionProfiles = "SolutionProfiles";
@@ -53,11 +56,11 @@ namespace Alphaleonis.VSProjectSetMgr
       public LoadedProjectsProfileManagerPackage()
       {
          Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
-         var container = this as IServiceContainer;
+                  
          m_interactionService = new InteractionService(this);
-         container.AddService(typeof(SInteractionService), m_interactionService, true);
+         AddService(typeof(SInteractionService), (s,c,t) => Task.FromResult((object)m_interactionService), true);
          m_repository = new ProjectSetRepository();
-         container.AddService(typeof(SProjectSetRepository), m_repository, true);
+         AddService(typeof(SProjectSetRepository), (s,c,t) => Task.FromResult((object)m_repository), true);
       }
 
       #region Package Members
@@ -66,13 +69,16 @@ namespace Alphaleonis.VSProjectSetMgr
       /// Initialization of the package; this method is called right after the package is sited, so this is the place
       /// where you can put all the initialization code that rely on services provided by VisualStudio.
       /// </summary>
-      protected override void Initialize()
+      protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
       {
-         base.Initialize();
+         await base.InitializeAsync(cancellationToken, progress);
          AddOptionKey(OptionSolutionProfiles);
 
+         // Switches to the UI thread in order to consume some services used in command initialization
+         await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
          // Add our command handlers for menu (commands must exist in the .vsct file)
-         OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+         OleMenuCommandService mcs = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
          if (null != mcs)
          {
             for (int i = 0; i < MRUSize; i++)
@@ -95,6 +101,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void OnExecuteUnloadAllProjectsInSolution(object sender, EventArgs args)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
          {
             Debug.WriteLine(asm.FullName);
@@ -112,6 +120,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void OnQueryStatusUnloadAllProjectsInSolution(object sender, EventArgs args)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          OleMenuCommand command = sender as OleMenuCommand;
          if (command != null)
          {
@@ -131,6 +141,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void OnExecuteLoadAllProjectsInSolution(object sender, EventArgs args)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          SolutionManager solMgr = GetSolutionManager();
          if (solMgr != null)
          {
@@ -143,6 +155,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void OnQueryStatusLoadAllProjectsInSolution(object sender, EventArgs args)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          OleMenuCommand command = sender as OleMenuCommand;
          if (command != null)
          {
@@ -185,6 +199,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnExecuteMRULoadExclusive(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          var projectSet = GetMRUEntry(sender, PkgCmdIDList.cmdidLoadExclusiveMRU0);
          if (projectSet != null)
          {
@@ -198,6 +214,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnExecuteMRULoad(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          var projectSet = GetMRUEntry(sender, PkgCmdIDList.cmdidLoadMRU0);
          if (projectSet != null)
          {
@@ -211,6 +229,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnExecuteMRUUnload(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          var projectSet = GetMRUEntry(sender, PkgCmdIDList.cmdidUnloadMRU0);
          if (projectSet != null)
          {
@@ -224,6 +244,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnExecuteMRUUnloadExclusive(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          var projectSet = GetMRUEntry(sender, PkgCmdIDList.cmdidUnloadExclusiveMRU0);
          if (projectSet != null)
          {
@@ -252,6 +274,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void OnExecuteShowManagerToolWindow(object sender, EventArgs e)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          // Get the instance number 0 of this tool window. This window is single instance so this instance
          // is actually the only one.
          // The last flag is set to true so that if the tool window does not exists it will be created.
@@ -268,16 +292,21 @@ namespace Alphaleonis.VSProjectSetMgr
 
       protected override void OnLoadOptions(string key, System.IO.Stream stream)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          if (key.Equals(OptionSolutionProfiles))
          {
             var settings = GetSettings();
-            try
+            if (settings.Storage == ProjectSetProfileStorage.Solution)
             {
-               m_repository.LoadBinary(stream, GetSolutionManager());
-            }
-            catch (Exception ex)
-            {               
-               m_interactionService.ShowError("Error loading profile configuration from solution:\r\n{0}", ex.Message);
+               try
+               {
+                  m_repository.LoadBinary(stream, GetSolutionManager());
+               }
+               catch (Exception ex)
+               {
+                  m_interactionService.ShowError("Error loading profile configuration from solution:\r\n{0}", ex.Message);
+               }
             }
          }
          else
@@ -293,6 +322,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       protected override void OnSaveOptions(string key, System.IO.Stream stream)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          if (key.Equals(OptionSolutionProfiles))
          {
             var settings = GetSettings();
@@ -326,6 +357,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void SaveOptionsExternal()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          SolutionManager solMgr = GetSolutionManager();
          if (solMgr != null)
          {
@@ -410,6 +443,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void LoadOptionsExternal()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          SolutionManager solMgr = GetSolutionManager();
          if (solMgr != null)
          {
@@ -435,6 +470,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private SolutionManager GetSolutionManager()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          IVsSolution solution = (IVsSolution)GetService(typeof(SVsSolution));
          if (null != solution)
          {
@@ -446,6 +483,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private void AdviseSolutionEvents()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          var solution = this.GetService(typeof(SVsSolution)) as IVsSolution;
 
          if (solution != null)
@@ -464,6 +503,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          m_repository.IsSolutionOpen = true;
 
          var settings = GetSettings();
@@ -532,6 +573,7 @@ namespace Alphaleonis.VSProjectSetMgr
 
       protected override void Dispose(bool disposing)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
          base.Dispose(disposing);
          if (!m_isDisposed)
          {

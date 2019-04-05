@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace Alphaleonis.VSProjectSetMgr
 {
@@ -42,6 +43,7 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          get
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
             string name = null;
             ErrorHandler.ThrowOnFailure(m_vsWindowPane.GetName(ref name));
             return name;
@@ -49,6 +51,7 @@ namespace Alphaleonis.VSProjectSetMgr
 
          set
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
             ErrorHandler.ThrowOnFailure(m_vsWindowPane.SetName(value));
          }
 
@@ -56,31 +59,43 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void Hide()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          ErrorHandler.ThrowOnFailure(m_vsWindowPane.Hide());
       }
 
       public void Activate()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          ErrorHandler.ThrowOnFailure(m_vsWindowPane.Activate());
       }
 
       public void Clear()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          ErrorHandler.ThrowOnFailure(m_vsWindowPane.Clear());
       }
 
       public TextWriter CreateTextWriter()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          return new OutputWindowTextWriter(m_vsWindowPane);
       }
 
       public void WriteLine(string message)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          ErrorHandler.ThrowOnFailure(m_vsWindowPane.OutputString(message + Environment.NewLine));
       }
 
       public void WriteLine(string format, params object[] args)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          ErrorHandler.ThrowOnFailure(m_vsWindowPane.OutputString(String.Format(format, args) + Environment.NewLine));
       }
 
@@ -100,16 +115,22 @@ namespace Alphaleonis.VSProjectSetMgr
 
          public override void Write(string value)
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
+
             ErrorHandler.ThrowOnFailure(m_outputPane.OutputString(value));
          }
 
          public override void WriteLine()
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
+
             ErrorHandler.ThrowOnFailure(m_outputPane.OutputString(Environment.NewLine));
          }
 
          public override void WriteLine(string value)
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
+
             Write(value);
             WriteLine();
          }
@@ -124,6 +145,8 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          get
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
+
             return GetOrCreatePane(Microsoft.VisualStudio.VSConstants.GUID_OutWindowGeneralPane, "General");
          }
       }
@@ -132,6 +155,7 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          get
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
             return GetOrCreatePane(Microsoft.VisualStudio.VSConstants.GUID_OutWindowDebugPane, "Debug");
          }
       }
@@ -143,6 +167,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public IOutputWindowPane GetOrCreatePane(Guid id, string title, bool initiallyVisible = true)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          IVsOutputWindowPane pane;
 
          var outputWindow = m_serviceProvider.GetService<SVsOutputWindow, IVsOutputWindow>();
@@ -157,6 +183,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void DeletePane(Guid id)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          var outputWindow = m_serviceProvider.GetService<SVsOutputWindow, IVsOutputWindow>();
          ErrorHandler.ThrowOnFailure(outputWindow.DeletePane(ref id));
       }

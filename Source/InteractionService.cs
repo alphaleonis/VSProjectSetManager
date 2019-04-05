@@ -13,6 +13,7 @@ using System.Reflection;
 using EnvDTE;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace Alphaleonis.VSProjectSetMgr
 {
@@ -39,7 +40,7 @@ namespace Alphaleonis.VSProjectSetMgr
       private readonly Lazy<string> m_packageTitle;
 
       public InteractionService(ISettingsProvider services)
-      {
+      {         
          if (services == null)
             throw new ArgumentNullException("services", "services is null.");
          m_services = services;
@@ -52,7 +53,9 @@ namespace Alphaleonis.VSProjectSetMgr
       }
 
       public VSConstants.MessageBoxResult ShowDialog(string title, string message, OLEMSGBUTTON buttons = OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON defaultbutton = OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST, OLEMSGICON icon = OLEMSGICON.OLEMSGICON_INFO)
-      {         
+      {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          IVsUIShell uiShell = (IVsUIShell)m_services.GetService<SVsUIShell>();
          Guid clsid = Guid.Empty;
          int result;
@@ -74,11 +77,15 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void ShowError(string message, params object[] args)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          ShowError(String.Format(message, args));
       }
 
       public void ShowError(string message)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          IVsUIShell uiShell = (IVsUIShell)m_services.GetService<SVsUIShell>();
          Guid clsid = Guid.Empty;
          int result;
