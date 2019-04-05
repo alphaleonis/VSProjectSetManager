@@ -16,6 +16,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Threading;
 using Alphaleonis.VSProjectSetMgr;
+using System.Windows.Threading;
 
 namespace Alphaleonis.VSProjectSetMgr
 {
@@ -143,6 +144,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public SolutionManager(IVsSolution solution, IOutputWindow outputWindow)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          if (solution == null)
             throw new ArgumentNullException("solution", "solution is null.");
 
@@ -160,6 +163,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public SolutionInfo GetSolutionInfo()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          string solOptsFile;
          string solFile;
          string solDir;
@@ -169,6 +174,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public IEnumerable<ProjectDescriptor> GetProjects(ProjectOptions options, bool includeMiscProjectsAndSolutionFolders = false)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          IEnumHierarchies ppEnum;
          Guid tempGuid = Guid.Empty;
          ErrorHandler.ThrowOnFailure(m_solution.GetProjectEnum((uint)options, ref tempGuid, out ppEnum));
@@ -209,15 +216,6 @@ namespace Alphaleonis.VSProjectSetMgr
                      continue;
                   }
                }
-
-
-               //object pImage;
-               //nodes[0].GetProperty(Microsoft.VisualStudio.VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_IconHandle, out pImage);
-               //IntPtr ipImage = IntPtr.Zero;
-               //if (pImage != null)
-               //{
-               //   ipImage = new IntPtr((int)pImage);
-               //}
                yield return new ProjectDescriptor(projectId, (string)projectName, projectKind);
             }
          }
@@ -225,10 +223,12 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void UnloadProject(ProjectDescriptor project)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          Guid projectId = project.Id;
          WriteLog($"Unloading project \"{project.Name ?? project.Id.ToString()}\"");
          try
-         {
+         {            
             ErrorHandler.ThrowOnFailure(m_solution4.UnloadProject(ref projectId, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser));
          }
          catch (Exception ex)
@@ -239,6 +239,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void LoadProject(ProjectDescriptor project)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          Guid projectId = project.Id;
          WriteLog($"Loading project \"{project.Name ?? project.Id.ToString()}\"");
          try
@@ -253,6 +255,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void UnloadExclusive(ISet<Guid> projects)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          foreach (ProjectDescriptor project in GetProjects(ProjectOptions.Unloaded, false).Where(p => !projects.Contains(p.Id)))
             LoadProject(project);
 
@@ -262,6 +266,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void LoadExclusive(ISet<Guid> projects)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          foreach (var project in GetProjects(ProjectOptions.Loaded, false).Where(p => !projects.Contains(p.Id)))
             UnloadProject(project);
 
@@ -271,12 +277,16 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void Unload(ISet<Guid> projects)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          foreach (var project in GetProjects(ProjectOptions.Loaded, false).Where(p => projects.Contains(p.Id)))
             UnloadProject(project);
       }
 
       public void Load(ISet<Guid> projects)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          foreach (var project in GetProjects(ProjectOptions.Unloaded, false).Where(p => projects.Contains(p.Id)))
          {
             LoadProject(project);
@@ -286,11 +296,15 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public void SaveUserOpts()
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          m_solution4.WriteUserOptsFile();
       }
 
       public ISolutionHierarchyContainerItem GetSolutionHierarchy(bool visibleNodesOnly = false)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          ISolutionHierarchyContainerItem solution = CreateSolutionHierarchyItem((IVsHierarchy)m_solution, (uint)Microsoft.VisualStudio.VSConstants.VSITEMID_ROOT) as ISolutionHierarchyContainerItem;
          if (solution != null)
             PopulateHierarchy(solution.VsHierarchy, solution.HierarchyItemId, visibleNodesOnly, solution, solution);
@@ -300,6 +314,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       public ISolutionHierarchyItem CreateSolutionHierarchyItem(IVsHierarchy hierarchy, uint itemId)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          int hr;
          IntPtr nestedHierarchyObj;
          uint nestedItemId;
@@ -345,6 +361,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private static bool IsSolutionFolder(IVsHierarchy hierarchy, uint itemId)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          object pVar;
          hierarchy.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_ExtObject, out pVar);
          Guid kindId;
@@ -353,6 +371,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private static ISolutionHierarchyItem CreateSolutionHierarchyItemDirect(IVsHierarchy hierarchy, uint itemId)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          object pVar;
          Guid id;
          ErrorHandler.ThrowOnFailure(hierarchy.GetProperty(itemId, (int)__VSHPROPID.VSHPROPID_Name, out pVar));
@@ -409,6 +429,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private ISolutionHierarchyItem PopulateHierarchy(IVsHierarchy hierarchy, uint itemId, bool visibleNodesOnly, ISolutionHierarchyContainerItem solutionNode, ISolutionHierarchyItem thisNode)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          ISolutionHierarchyContainerItem container = thisNode as ISolutionHierarchyContainerItem;
 
          if (container != null)
@@ -451,6 +473,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private ISolutionHierarchyItem GetSolutionHierarchy(IVsHierarchy hierarchy, uint itemId, bool visibleNodesOnly, ISolutionHierarchyContainerItem solutionNode)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          int hr;
          IntPtr nestedHierarchyObj;
          uint nestedItemId;
@@ -509,6 +533,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       private static IEnumerable<uint> EnumerateChildIds(IVsHierarchy hierarchy, uint itemId, bool visibleNodesOnly)
       {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
          object pVar;
          int hr = hierarchy.GetProperty(itemId, ((visibleNodesOnly ? (int)__VSHPROPID.VSHPROPID_FirstVisibleChild : (int)__VSHPROPID.VSHPROPID_FirstChild)), out pVar);
          Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(hr);
@@ -635,6 +661,8 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          get
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
+
             if (!m_id.HasValue)
             {
                Guid id;
@@ -660,6 +688,8 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          get
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
+
             if (m_name == null)
             {
                object pVar;
@@ -674,6 +704,8 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          get
          {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
+
             object pVar;
             int hr = VsHierarchy.GetProperty(HierarchyItemId, (int)__VSHPROPID.VSHPROPID_IconHandle, out pVar);
             if (pVar != null && hr == 0)
