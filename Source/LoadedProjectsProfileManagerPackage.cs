@@ -487,7 +487,6 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          Dispatcher.CurrentDispatcher.VerifyAccess();
 
-         System.Diagnostics.Debugger.Launch();
          var solution = this.GetService(typeof(SVsSolution)) as IVsSolution;
 
          if (solution != null)
