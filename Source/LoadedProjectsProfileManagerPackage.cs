@@ -104,7 +104,7 @@ namespace Alphaleonis.VSProjectSetMgr
       public void OnExecuteUnloadAllProjectsInSolution(object sender, EventArgs args)
       {
          Dispatcher.CurrentDispatcher.VerifyAccess();
-
+         
          foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
          {
             Debug.WriteLine(asm.FullName);
@@ -487,15 +487,36 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          Dispatcher.CurrentDispatcher.VerifyAccess();
 
+         System.Diagnostics.Debugger.Launch();
          var solution = this.GetService(typeof(SVsSolution)) as IVsSolution;
 
          if (solution != null)
-         {
+         {            
             solution.AdviseSolutionEvents(this, out m_eventsCookie);
+            var isSolutionOpen = GetPropertyValue<bool>(solution, __VSPROPID.VSPROPID_IsSolutionOpen);
+            if (isSolutionOpen)
+            {
+               OnAfterOpenSolution(null, 0);
+            }
          }
       }
 
+      private T GetPropertyValue<T>(IVsSolution solutionInterface, __VSPROPID solutionProperty)
+      {
+         Dispatcher.CurrentDispatcher.VerifyAccess();
+
+         object value = null;
+         T result = default(T);
+
+         if (solutionInterface.GetProperty((int)solutionProperty, out value) == Microsoft.VisualStudio.VSConstants.S_OK)
+         {
+            result = (T)value;
+         }
+         return result;
+      }
+
       #region IVsSolutionEvents
+
 
       public int OnAfterCloseSolution(object pUnkReserved)
       {
