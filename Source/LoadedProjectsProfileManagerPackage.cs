@@ -33,7 +33,8 @@ namespace Alphaleonis.VSProjectSetMgr
    [ProvideMenuResource("Menus.ctmenu", 1)]
    [Guid(GuidList.guidLoadedProjectsProfileManagerPkgString)]
    [ProvideToolWindow(typeof(ProjectSetManagerToolWindow))]
-   [ProvideAutoLoad("{F1536EF8-92EC-443C-9ED7-FDADF150DA82}", PackageAutoLoadFlags.BackgroundLoad)]
+   [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
+   [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
    [ProvideService(typeof(SProjectSetRepository), IsAsyncQueryable = true)]
    [ProvideService(typeof(SInteractionService), IsAsyncQueryable = true)]
    [ProvideOptionPage(typeof(ProjectSetManagerUserOptions), "Project Set Manager", "General", 0, 0, true)]
@@ -48,8 +49,8 @@ namespace Alphaleonis.VSProjectSetMgr
 
       #region Private Fields
 
-      private readonly ProjectSetRepository m_repository;
-      private readonly IInteractionService m_interactionService;
+      private ProjectSetRepository m_repository;
+      private IInteractionService m_interactionService;
 
       #endregion
 
@@ -57,10 +58,6 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
                   
-         m_interactionService = new InteractionService(this);
-         AddService(typeof(SInteractionService), (s,c,t) => Task.FromResult((object)m_interactionService), true);
-         m_repository = new ProjectSetRepository();
-         AddService(typeof(SProjectSetRepository), (s,c,t) => Task.FromResult((object)m_repository), true);
       }
 
       #region Package Members
@@ -73,6 +70,11 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          await base.InitializeAsync(cancellationToken, progress);
          AddOptionKey(OptionSolutionProfiles);
+
+         m_interactionService = new InteractionService(this);
+         AddService(typeof(SInteractionService), (s, c, t) => Task.FromResult((object)m_interactionService), true);
+         m_repository = new ProjectSetRepository();
+         AddService(typeof(SProjectSetRepository), (s, c, t) => Task.FromResult((object)m_repository), true);
 
          // Switches to the UI thread in order to consume some services used in command initialization
          await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
