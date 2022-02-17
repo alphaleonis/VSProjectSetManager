@@ -89,14 +89,14 @@ namespace Alphaleonis.VSProjectSetMgr
       {
          Dispatcher.CurrentDispatcher.VerifyAccess();
 
-         ErrorHandler.ThrowOnFailure(m_vsWindowPane.OutputString(message + Environment.NewLine));
+         ErrorHandler.ThrowOnFailure(m_vsWindowPane.OutputStringThreadSafe(message + Environment.NewLine));
       }
 
       public void WriteLine(string format, params object[] args)
       {
          Dispatcher.CurrentDispatcher.VerifyAccess();
 
-         ErrorHandler.ThrowOnFailure(m_vsWindowPane.OutputString(String.Format(format, args) + Environment.NewLine));
+         ErrorHandler.ThrowOnFailure(m_vsWindowPane.OutputStringThreadSafe(String.Format(format, args) + Environment.NewLine));
       }
 
       private class OutputWindowTextWriter : TextWriter
@@ -117,14 +117,14 @@ namespace Alphaleonis.VSProjectSetMgr
          {
             Dispatcher.CurrentDispatcher.VerifyAccess();
 
-            ErrorHandler.ThrowOnFailure(m_outputPane.OutputString(value));
+            ErrorHandler.ThrowOnFailure(m_outputPane.OutputStringThreadSafe(value));
          }
 
          public override void WriteLine()
          {
             Dispatcher.CurrentDispatcher.VerifyAccess();
 
-            ErrorHandler.ThrowOnFailure(m_outputPane.OutputString(Environment.NewLine));
+            ErrorHandler.ThrowOnFailure(m_outputPane.OutputStringThreadSafe(Environment.NewLine));
          }
 
          public override void WriteLine(string value)

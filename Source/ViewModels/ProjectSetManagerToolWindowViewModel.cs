@@ -44,7 +44,6 @@ namespace Alphaleonis.VSProjectSetMgr
          {
             m_repositoryViewModel = new ProjectSetRepositoryViewModel(m_repository);
             m_collectionView = new ListCollectionView(m_repositoryViewModel.ProjectSets);
-            //m_collectionView = CollectionViewSource.GetDefaultView(m_repository.ProjectSets);
             m_collectionView.SortDescriptions.Clear();
             m_collectionView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
          }
