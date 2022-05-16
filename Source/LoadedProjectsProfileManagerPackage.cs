@@ -338,7 +338,7 @@ namespace Alphaleonis.VSProjectSetMgr
                }
                catch (Exception ex)
                {
-                  m_interactionService.ShowError("Error saving profile configuration to external file:\r\n\r\n{1}", ex.Message);
+                  m_interactionService.ShowError("Error saving profile configuration to external file:\r\n\r\n{0}", ex.Message);
                }
             }
 
@@ -348,7 +348,7 @@ namespace Alphaleonis.VSProjectSetMgr
             }
             catch (Exception ex)
             {
-               m_interactionService.ShowError("Error saving profile configuration from solution:\r\n\r\n{1}", ex.Message);
+               m_interactionService.ShowError("Error saving profile configuration from solution:\r\n\r\n{0}", ex.Message);
             }
          }
          else
@@ -475,6 +475,7 @@ namespace Alphaleonis.VSProjectSetMgr
          Dispatcher.CurrentDispatcher.VerifyAccess();
 
          IVsSolution solution = (IVsSolution)GetService(typeof(SVsSolution));
+         IVsSolution4 sol4 = (IVsSolution4)GetService(typeof(SVsSolution));
          if (null != solution)
          {
             return new SolutionManager(solution, new OutputWindow(this));
@@ -544,7 +545,7 @@ namespace Alphaleonis.VSProjectSetMgr
             }
             catch (Exception ex)
             {
-               m_interactionService.ShowError("Error loading profile configuration from external file:\r\n\r\n{1}", ex.Message);
+               m_interactionService.ShowError("Error loading profile configuration from external file:\r\n\r\n{0}", ex.Message);
             }
          }
          return VSConstants.S_OK;
